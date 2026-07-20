@@ -20,6 +20,11 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Package Lambda zip
+        run: |
+          zip -j lambda_function.zip lambda_function.py
+          ls -la
+
       - name: Terraform Init (reconfigure backend)
         run: terraform init -reconfigure
 
