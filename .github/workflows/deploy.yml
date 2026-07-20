@@ -20,14 +20,25 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init
-        run: terraform init
+      - name: Terraform Init (reconfigure backend)
+        run: terraform init -reconfigure
+
+      - name: Show current Terraform state
+        run: terraform state list || true
+
+      - name: Import DynamoDB table if missing
+        run: |
+          terraform state show aws_dynamodb_table.outage_logs > /dev/null 2>&1 || terraform import aws_dynamodb_table.outage_logs OutageLogs
+
+      - name: Import IAM role if missing
+        run: |
+          terraform state show aws_iam_role.lambda_role > /dev/null 2>&1 || terraform import aws_iam_role.lambda_role outage-api-lambda-role
 
       - name: Terraform Validate
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -input=false
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -input=false
