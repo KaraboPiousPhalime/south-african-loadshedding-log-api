@@ -43,6 +43,10 @@ jobs:
         run: |
           terraform state show aws_lambda_function.outage_api > /dev/null 2>&1 || terraform import aws_lambda_function.outage_api OutageLogAPI
 
+      - name: Import Lambda permission if missing
+        run: |
+          terraform state show aws_lambda_permission.api_gateway > /dev/null 2>&1 || terraform import aws_lambda_permission.api_gateway "OutageLogAPI/AllowAPIGatewayInvoke"    
+
       - name: Terraform Validate
         run: terraform validate
 
