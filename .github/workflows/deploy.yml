@@ -29,7 +29,8 @@ jobs:
         run: terraform init -reconfigure
 
       - name: Show current Terraform state
-        run: terraform state list || true
+        run: |
+          terraform state list 2>/dev/null || echo "State not listed yet (will be created/imported in next steps)."
 
       - name: Import DynamoDB table if missing
         run: |
