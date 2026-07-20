@@ -36,6 +36,24 @@ On push to `main`, pipeline:
 - Resolved GitHub Actions YAML parse failure (`Line 1, Col 7`)
 
 ## Status
-✅ Deployed  
-✅ CI/CD stable  
-✅ Infrastructure reproducible
+Deployed  
+CI/CD stable  
+Infrastructure reproducible
+
+## Future Enterprise Scaling
+
+The current architecture serves a low-traffic personal portfolio but it is designed with future scalability in mind. If this API was transitioned to a production environment handling high concurrent traffic, I would implement the following upgrades:
+
+### 1. High-Throughput & Cost Optimization (Read Path)
+* **API Gateway Caching / DynamoDB Accelerator (DAX):** Instead of executing a database read query for every user checking load shedding schedules, I would implement an `aws_api_gateway_method_settings` caching layer with a TTL period. This would reduce DynamoDB read throughput costs by up to 80% during high-traffic spikes.
+
+### 2. Traffic Shaving & Decoupling (Write Path)
+* **Asynchronous Ingestion via Amazon SQS:** If thousands of IoT devices or users log an outage simultaneously, hitting the Lambda function directly could cause execution throttling. I would decouple the write path by placing an **Amazon SQS Queue** between API Gateway and Lambda to buffer incoming traffic and process logs smoothly.
+
+### 3. Edge Security & Rate Limiting
+* **AWS WAF (Web Application Firewall) Integration:** To protect the public endpoints from denial-of-service (DoS) attacks or automated scrapers, I would provision an `aws_wafv2_web_acl` resource in Terraform to enforce IP-based rate limiting.
+
+### 4. GitOps & Multi-Environment Isolation
+* **CI/CD Environments:** Expand the GitHub Actions pipeline to handle `staging` and `production` environments using distinct AWS accounts and Terraform workspace states. This would include adding an interactive manual approval gate in GitHub before applying changes to production infrastructure.
+
+
