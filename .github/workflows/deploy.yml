@@ -1,3 +1,30 @@
+name: Deploy Terraform to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: af-south-1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Package Lambda zip
+        run: |
+          zip -j lambda_function.zip lambda_function.py
+          ls -la
+
       - name: Terraform Init (reconfigure backend)
         run: terraform init -reconfigure
 
